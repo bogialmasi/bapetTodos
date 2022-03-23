@@ -2,19 +2,25 @@ const uuid = require('uuid');
 const path = require('path');
 function addRoutes(app, db, myModel) {
     const objRep = {
-        myModel,
-        db,
-        uuid
+        myModel, // JSON formátum arról amit utaztatok
+        db, // adatbázis
+        uuid // azonosítókat generál, tartalmaznia kell, postmanban nem kell használni
     }
 
+    // objRep objektumban utaznak az adataink, annak a modellnek kell benne lennie (ha több akkor mindnek) amelyik perzisztál,
+    // az uuid azért kell mert hátha kell új azonosító akkor ezt meg lehet adni UUIDV4-et kell használni!
+
    
-    app.get('/todo', getTodosMW(objRep));
+    app.get('/todo', getTodosMW(objRep)); 
     app.get('/remove/:tid', getTodoMW(objRep), deleteTodoMW(objRep))
     app.get('/', getTodosMW(objRep), renderMW(objRep, 'index'));
-    app.put('/todo', addTodoMW(objRep));
-    app.delete('/todo/:tid', getTodoMW(objRep), deleteTodoMW(objRep));
+    app.put('/todo', addTodoMW(objRep));// a mw a felfolgozási lánc nem legutolsó eleme, az objRepo-n keresztül utazttajuk az adatokat
+    app.delete('/todo/:tid', getTodoMW(objRep), deleteTodoMW(objRep)); // lehet több tid is pl tid2
     //app.get('/static/todo.css', (req,res,next) => { res.sendFile(path.join(__dirname, "../static/todo.css"))});
 }
+
+// a next() arra szolgál hogy a feldolgozási lánc következő elemére lehessen ugrani
+
 
 const getTodosMW = require('../middleware/getTodos');
 const getTodoMW = require('../middleware/getTodo');
